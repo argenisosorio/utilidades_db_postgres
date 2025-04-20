@@ -18,7 +18,7 @@
 #
 # Para ejecutar el script, use el siguiente comando:
 #
-# bash utilidades_db_postgres-19-04-25.sh
+# bash utilidades_db_postgres.sh
 #
 # utilidades_db_postgres.sh es software libre: Puedes redistribuirlo y/o
 # modificar bajo los términos de la Licencia Pública General GNU publicada por
