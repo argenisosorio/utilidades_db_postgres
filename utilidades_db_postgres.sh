@@ -4,31 +4,30 @@
 #
 # Fecha de creación: 13/08/23
 #
-# Última actualización: 19/04/25
+# Última actualización: 14/05/25
 #
-# Descripción: Este script permite administrar bases de datos y usuarios de
-# PostgreSQL de forma rápida y sencilla, ofreciendo las siguientes
-# funcionalidades:
-#
-# -Creación de usuarios y bases de datos.
-# -Eliminación de bases de datos.
-# -Respaldo (backup) y restauración de bases de datos.
-# -Listado de todas las bases de datos con sus respectivos propietarios.
-# -Copia de una base de datos existente.
+# Descripción: Script de bash que permite crear usuarios y BD, borrar BD,
+# restaurar y respaldar BD, listar todas las BD y sus dueños, y crear una copia
+# de una base de datos existente de manera rápida y sencilla.
 #
 # Para ejecutar el script, use el siguiente comando:
 #
 # bash utilidades_db_postgres.sh
-#
-# utilidades_db_postgres.sh es software libre: Puedes redistribuirlo y/o
-# modificar bajo los términos de la Licencia Pública General GNU publicada por
-# la Free Software Foundation, ya sea la versión 3 de la Licencia, o (a su
-# elección) cualquier versión posterior.
-#
-# utilidades_db_postgres.sh se distribuye con la esperanza de que sea útil, pero
-# SIN NINGUNA GARANTIA; sin siquiera la garantía implícita de COMERCIABILIDAD o
-# IDONEIDAD PARA UN FIN DETERMINADO. Ver el Licencia Pública General GNU para
-# más detalles.
+
+# Verificar si la sesión de sudo está activa
+if sudo -n true 2>/dev/null; then
+    echo
+    echo "Sesión de sudo activa. Continuando..."
+else
+    # Solicitar la contraseña de sudo si no está activa
+    echo
+    echo "Por favor, introduzca su contraseña de sudo para continuar:"
+    echo
+    sudo -v
+fi
+
+# Mantener la sesión de sudo activa mientras el script se ejecuta
+while true; do sudo -v; sleep 60; done &
 
 while true; do
     echo
@@ -66,12 +65,10 @@ while true; do
             read -p "Ingrese el nombre de la base de datos que desea borrar y presione enter: " database_name
             echo
             read -p "¿Está seguro de que desea borrar la base de datos '$database_name'? ingrese (S/N) y presione enter: " confirmation
-            if [ "$confirmation" == "S" ] || [ "$confirmation" == "s" ]; then
+            if [ "$confirmation" = "S" ] || [ "$confirmation" = "s" ]; then
                 # Verificar si la base de datos existe antes de borrarla
                 sudo -u postgres psql -t -c "SELECT 1 FROM pg_database WHERE datname='$database_name'" | grep -q 1
                 if [ $? -eq 0 ]; then
-                    echo
-                    echo "Ingrese su contraseña de usuario sudo (Si ya lo ha hecho antes, no será necesario):"
                     sudo -u postgres psql -c "DROP DATABASE $database_name"
                     echo
                     echo "┌──────────────────────────────────────────────"
@@ -99,29 +96,18 @@ while true; do
             ;;
         4)
             echo
-            # Solicitar el nombre de la base de datos
             read -p "Ingrese el nombre de la base de datos que desea respaldar: " nombre_bd
             echo
-            # Solicitar el nombre del dueño de la base de datos
             read -p "Ingrese el nombre del propietario de la base de datos que desea respaldar: " nombre_dueno
             echo
-            # Solicitar la contraseña del dueño de la base de datos
             read -s -p "Ingrese la contraseña del propietario de la base de datos que desea respaldar: " contrasena
             echo
-            echo
-            # Solicitar el nombre del archivo de respaldo
             read -p "Ingrese el nombre del archivo .sql que será creado y presione enter (No escriba .sql al final, solo el nombre): " nombre_respaldo
-            # Agregar la extensión .sql al nombre del archivo de respaldo
             nombre_respaldo="$nombre_respaldo.sql"
-            # Establecer la contraseña del dueño de la base de datos
             export PGPASSWORD="$contrasena"
-            # Ejecutar el comando pg_dump para realizar el respaldo
-            #pg_dump -U "$nombre_dueno" -h 127.0.0.1 --no-owner "$nombre_bd" > "$nombre_respaldo"
             pg_dump -U "$nombre_dueno" -h 127.0.0.1 --no-owner --no-acl "$nombre_bd" > "$nombre_respaldo"
-            # Limpiar la variable de entorno PGPASSWORD
             unset PGPASSWORD
             echo
-            # Indicar al usuario que se realizó el respaldo con éxito
             echo "╭────────────────────────────────────────────────────────────"
             echo "│  ✔ Respaldo completado:                                    "
             echo "│     Base de datos: $nombre_bd                              "
@@ -130,30 +116,18 @@ while true; do
             ;;
         5)
             echo
-            # Solicitar el nombre de la base de datos
             read -p "Ingrese el nombre de la base de datos que desea restaurar y presione enter (Debe estar creada en Postgresql y además estar vacía): " nombre_bd
             echo
-            # Solicitar el nombre del dueño de la base de datos
             read -p "Ingrese el nombre del propietario de la base de datos que desea restaurar y presione enter: " nombre_dueno
             echo
-            # Solicitar la contraseña del dueño de la base de datos
             read -s -p "Ingrese la contraseña del propietario de la base de datos que desea restaurar y presione enter: " contrasena
             echo
-            echo
-            # Solicitar el nombre del archivo de respaldo
             read -p "Ingrese el nombre del archivo .sql que es el respaldo que desea restaurar y presione enter (No escriba .sql al final, solo el nombre): " nombre_respaldo
-            # Agregar la extensión .sql al nombre del archivo de respaldo
             nombre_respaldo="$nombre_respaldo.sql"
-            # Establecer la contraseña del dueño de la base de datos
             export PGPASSWORD="$contrasena"
-            # Ejecutar el comando psql para restaurar el respaldo
             psql -h 127.0.0.1 -U "$nombre_dueno" -d "$nombre_bd" -f "$nombre_respaldo"
-            set -x
-            set +x
-            # Limpiar la variable de entorno PGPASSWORD
             unset PGPASSWORD
             echo
-            # Indicar al usuario que se realizó el respaldo con éxito
             echo "╭────────────────────────────────────────────────────────────"
             echo "│  ✔ Restauración completada:                               "
             echo "│     Base de datos: $nombre_bd                             "
@@ -161,7 +135,6 @@ while true; do
             echo "╰───────────────────────────────────────────────────────────"
             ;;
         6)
-            # Nueva opción para listar bases de datos y sus dueños
             echo
             echo "Listando todas las bases de datos y sus propietarios:"
             echo "----------------------------------------------------"
@@ -186,7 +159,6 @@ while true; do
             echo "└────────────────────────────────────────────────────────────"
             ;;
         8)
-            # Opción para Salir del script
             echo
             echo "┌──────────────────────────────────────"
             echo "│  ¡Gracias por usar el script!        "
