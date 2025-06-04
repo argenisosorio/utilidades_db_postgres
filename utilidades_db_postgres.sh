@@ -4,11 +4,12 @@
 #
 # Fecha de creación: 13/08/23
 #
-# Última actualización: 16/05/25
+# Última actualización: 03/06/25
 #
 # Descripción: Script de bash que permite crear usuarios y BD, borrar BD,
 # restaurar y respaldar BD, listar todas las BD y sus dueños, y crear una copia
-# de una base de datos existente de manera rápida y sencilla.
+# de una base de datos existente y cambiar dueños de las bases de datos de
+# manera rápida y sencilla.
 #
 # Para ejecutar el script, use el siguiente comando:
 #
@@ -36,13 +37,14 @@ while true; do
     echo "===================================================="
     echo
     echo "1) Crear un nuevo usuario en PostgreSQL"
-    echo "2) Eliminar una base de datos de PostgreSQL"
-    echo "3) Crear una nueva base de datos en PostgreSQL"
-    echo "4) Respaldar una base de datos a un archivo .sql"
-    echo "5) Restaurar una base de datos desde un archivo .sql"
-    echo "6) Listar todas las bases de datos y sus propietarios"
-    echo "7) Clonar o Crear una copia de una base de datos existente (La copia se creará dentro de PostgreSQL)"
-    echo "8) Salir"
+    echo "2) Cambiar el dueño de una base de datos de PostgreSQL"
+    echo "3) Eliminar una base de datos de PostgreSQL"
+    echo "4) Crear una nueva base de datos en PostgreSQL"
+    echo "5) Respaldar una base de datos a un archivo .sql"
+    echo "6) Restaurar una base de datos desde un archivo .sql"
+    echo "7) Listar todas las bases de datos y sus propietarios"
+    echo "8) Clonar o Crear una copia de una base de datos existente (La copia se creará dentro de PostgreSQL)"
+    echo "9) Salir"
     echo 
     read -p "Introduzca su opción y presione enter: " var
 
@@ -67,7 +69,24 @@ while true; do
             ;;
         2)
             clear
-            echo "2) Eliminar una base de datos de PostgreSQL"
+            echo "2) Cambiar el dueño de una base de datos"
+            echo
+            echo "Presione Ctrl + c si desea salir del script"
+            echo
+            read -p "Ingrese el nombre de la base de datos a la que desea cambiar el dueño: " db_name
+            echo
+            read -p "Ingrese el nombre del nuevo dueño: " new_owner
+            echo
+            echo "Cambiando el dueño de la base de datos '$db_name' a '$new_owner'..."
+            sudo -u postgres psql -c "ALTER DATABASE $db_name OWNER TO $new_owner;"
+            echo
+            echo "┌────────────────────────────────────────────────────────────"
+            echo "│  ✔ Dueño de la base de datos '$db_name' cambiado a '$new_owner'"
+            echo "└────────────────────────────────────────────────────────────"
+            ;;
+        3)
+            clear
+            echo "3) Eliminar una base de datos de PostgreSQL"
             echo
             echo "Presione Ctrl + c si desea salir del script"
             echo
@@ -91,9 +110,9 @@ while true; do
                 echo "Operación cancelada. No se ha eliminado la base de datos."
             fi
             ;;
-        3)
+        4)
             clear
-            echo "3) Crear una nueva base de datos en PostgreSQL"
+            echo "4) Crear una nueva base de datos en PostgreSQL"
             echo
             echo "Presione Ctrl + c si desea salir del script"
             echo
@@ -107,9 +126,9 @@ while true; do
             echo "│  ✔ Base de datos '$new_database_name' creada  "
             echo "└───────────────────────────────────────────────"
             ;;
-        4)
+        5)
             clear
-            echo "4) Respaldar una base de datos a un archivo .sql"
+            echo "5) Respaldar una base de datos a un archivo .sql"
             echo
             echo "Presione Ctrl + c si desea salir del script"
             echo
@@ -131,9 +150,9 @@ while true; do
             echo "│     Archivo generado: $nombre_respaldo                     "
             echo "╰────────────────────────────────────────────────────────────"
             ;;
-        5)
+        6)
             clear
-            echo "5) Restaurar una base de datos desde un archivo .sql"
+            echo "6) Restaurar una base de datos desde un archivo .sql"
             echo
             echo "Presione Ctrl + c si desea salir del script"
             echo
@@ -155,15 +174,15 @@ while true; do
             echo "│     Archivo utilizado: $nombre_respaldo                   "
             echo "╰───────────────────────────────────────────────────────────"
             ;;
-        6)
+        7)
             clear
-            echo "6) Listar todas las bases de datos y sus propietarios"
+            echo "7) Listar todas las bases de datos y sus propietarios"
             echo
             sudo -u postgres psql -c "SELECT d.datname as \"Base de Datos\", pg_catalog.pg_get_userbyid(d.datdba) as \"Dueño\" FROM pg_catalog.pg_database d ORDER BY 1;"
             ;;
-        7)
+        8)
             clear
-            echo "7) Clonar o Crear una copia de una base de datos existente (La copia se creará dentro de PostgreSQL)"
+            echo "8) Clonar o Crear una copia de una base de datos existente (La copia se creará dentro de PostgreSQL)"
             echo
             echo "Presione Ctrl + c si desea salir del script"
             echo    
@@ -182,7 +201,7 @@ while true; do
             echo "│     Nueva base de datos: $new_db                           "
             echo "└────────────────────────────────────────────────────────────"
             ;;
-        8)
+        9)
             clear
             echo
             echo "┌──────────────────────────────────────"
@@ -195,7 +214,7 @@ while true; do
         *)
             echo
             echo "┌─────────────────────────────────────────────────────────────"
-            echo "│¡Opción inválida! Por favor, seleccione una opción del 1 al 8."
+            echo "│¡Opción inválida! Por favor, seleccione una opción del 1 al 9."
             echo "└─────────────────────────────────────────────────────────────"
             ;;
     esac
