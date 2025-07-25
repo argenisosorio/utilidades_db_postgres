@@ -4,7 +4,7 @@
 #
 # Fecha de creación: 13/08/23
 #
-# Última actualización: 03/06/25
+# Última actualización: 25/07/25
 #
 # Descripción: Script de bash que permite crear usuarios y BD, borrar BD,
 # restaurar y respaldar BD, listar todas las BD y sus dueños, y crear una copia
@@ -93,6 +93,7 @@ while true; do
             read -p "Ingrese el nombre de la base de datos que desea eliminar y presione enter: " database_name
             echo
             read -p "¿Está seguro de que desea eliminar la base de datos '$database_name'? ingrese (S/N) y presione enter: " confirmation
+            echo
             if [ "$confirmation" = "S" ] || [ "$confirmation" = "s" ]; then
                 # Verificar si la base de datos existe antes de borrarla
                 sudo -u postgres psql -t -c "SELECT 1 FROM pg_database WHERE datname='$database_name'" | grep -q 1
@@ -139,6 +140,7 @@ while true; do
             read -s -p "Ingrese la contraseña del propietario de la base de datos que desea respaldar: " contrasena
             echo
             read -p "Ingrese el nombre del archivo de respaldo .sql que será creado y presione enter (No escriba .sql al final, solo el nombre): " nombre_respaldo
+            echo
             nombre_respaldo="$nombre_respaldo.sql"
             export PGPASSWORD="$contrasena"
             pg_dump -U "$nombre_dueno" -h 127.0.0.1 --no-owner --no-acl "$nombre_bd" > "$nombre_respaldo"
@@ -162,7 +164,9 @@ while true; do
             echo
             read -s -p "Ingrese la contraseña del propietario de la base de datos que desea restaurar y presione enter: " contrasena
             echo
+            echo
             read -p "Ingrese el nombre del archivo .sql que es el respaldo que desea restaurar y presione enter (No escriba .sql al final, solo el nombre): " nombre_respaldo
+            echo
             nombre_respaldo="$nombre_respaldo.sql"
             export PGPASSWORD="$contrasena"
             psql -h 127.0.0.1 -U "$nombre_dueno" -d "$nombre_bd" -f "$nombre_respaldo"
