@@ -4,7 +4,7 @@
 #
 # Fecha de creación: 13/08/23
 #
-# Última actualización: 25/07/25
+# Última actualización: 03/08/25
 #
 # Descripción: Script de bash que permite crear usuarios y BD, borrar BD,
 # restaurar y respaldar BD, listar todas las BD y sus dueños, y crear una copia
@@ -138,6 +138,7 @@ while true; do
             read -p "Ingrese el nombre del propietario de la base de datos que desea respaldar: " nombre_dueno
             echo
             read -s -p "Ingrese la contraseña del propietario de la base de datos que desea respaldar: " contrasena
+            echo
             echo
             read -p "Ingrese el nombre del archivo de respaldo .sql que será creado y presione enter (No escriba .sql al final, solo el nombre): " nombre_respaldo
             echo
