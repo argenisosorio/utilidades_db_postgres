@@ -40,9 +40,9 @@ while true; do
     echo "2) Cambiar el dueño de una base de datos de PostgreSQL"
     echo "3) Eliminar una base de datos de PostgreSQL"
     echo "4) Crear una nueva base de datos en PostgreSQL"
-    echo "5) Respaldar una base de datos a un archivo .sql"
+    echo "5) Respaldar una base de datos en un archivo .sql"
     echo "6) Restaurar una base de datos desde un archivo .sql"
-    echo "7) Listar todas las bases de datos y sus propietarios"
+    echo "7) Listar todas las bases de datos y sus propietarios en PostgreSQL"
     echo "8) Clonar o Crear una copia de una base de datos existente (La copia se creará dentro de PostgreSQL)"
     echo "9) Salir"
     echo 
@@ -129,7 +129,7 @@ while true; do
             ;;
         5)
             clear
-            echo "5) Respaldar una base de datos a un archivo .sql"
+            echo "5) Respaldar una base de datos en un archivo .sql"
             echo
             echo "Presione Ctrl + c si desea salir del script"
             echo
